@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Academic Reading</title>
+<style>
+:root{--navy:#1f2d5c;--gold:#f4c542;--bg:#eef0f4;--line:#d6dae3;--muted:#555}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#222}
+.top{background:var(--navy);color:#fff;padding:14px 24px;font-size:18px;font-weight:700}
+.top span{font-weight:400;opacity:.8}
+main{max-width:980px;margin:0 auto;padding:24px}
+h1{color:var(--navy);margin:8px 0 4px;font-size:24px}
+.sub{color:var(--muted);margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.card{display:block;background:#fff;border:1px solid var(--line);border-top:4px solid var(--navy);border-radius:6px;padding:18px;text-decoration:none;color:inherit}
+.card:hover{box-shadow:0 4px 14px rgba(31,45,92,.15)}
+.card h2{margin:0 0 10px;color:var(--navy);font-size:17px}
+.meta{font-size:13px;color:var(--muted);line-height:1.6}
+.btn{display:inline-block;margin-top:12px;background:var(--gold);color:var(--navy);font-weight:700;padding:7px 14px;border-radius:3px}
+.empty{color:var(--muted);font-style:italic}
+.msg{background:#fde8e6;color:#b42318;padding:10px 14px;border-radius:4px}
+</style></head><body>
+<header class="top">IELTS <span>Academic Reading</span></header>
+<main>
+  <h1>Choose a test</h1>
+  <p class="sub">Click a test to open it. The timer starts as soon as the test opens.</p>
+  <div id="list" class="grid"></div>
+</main>
+<script>
+const list = document.getElementById("list");
+
+function showMessage(text, cls) {
+  list.innerHTML = "";
+  const p = document.createElement("p");
+  p.className = cls;
+  p.textContent = text;
+  list.appendChild(p);
+}
+
+fetch("tests/manifest.json", { cache: "no-store" })
+  .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+  .then(tests => {
+    if (!tests.length) { showMessage("No tests yet. Please check back later.", "empty"); return; }
+    tests.forEach(t => {
+      const a = document.createElement("a");
+      a.className = "card";
+      a.href = "test.html?t=" + encodeURIComponent(t.file);
+
+      const h = document.createElement("h2");
+      h.textContent = t.title;
+
+      const m = document.createElement("div");
+      m.className = "meta";
+      m.textContent = `${t.time} minutes · ${t.questions} questions · ${t.parts} passage${t.parts > 1 ? "s" : ""}`;
+
+      const b = document.createElement("span");
+      b.className = "btn";
+      b.textContent = "Start test";
+
+      a.append(h, m, b);
+      list.appendChild(a);
+    });
+  })
+  .catch(() => showMessage("Could not load the test list.", "msg"));
+</script>
+</body></html>
