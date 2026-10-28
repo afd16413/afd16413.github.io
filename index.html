@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading</title>
+  <style>
+    :root {
+      --navy: #1f2d5c;
+      --navy-soft: #dfe3ec;
+      --gold: #f4c542;
+      --bg: #eef0f4;
+      --panel: #ffffff;
+      --panel-alt: #fbfbfc;
+      --line: #d6dae3;
+      --text: #222;
+      --muted: #555;
+      --danger: #b42318;
+      --danger-bg: #fde8e6;
+      --success: #1a7f37;
+      --success-bg: #e3f6e8;
+      --warning: #f4c542;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: var(--navy);
+      color: white;
+      padding: 10px 20px;
+    }
+
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .brand span { opacity: 0.8; font-weight: 400; }
+
+    .topbar .title {
+      flex: 1;
+      min-width: 120px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .student-name {
+      width: 170px;
+      border: none;
+      border-radius: 3px;
+      padding: 6px 8px;
+    }
+
+    .timer {
+      min-width: 72px;
+      text-align: center;
+      background: white;
+      color: var(--navy);
+      padding: 6px 12px;
+      border-radius: 3px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer.warn {
+      background: var(--warning);
+    }
+
+    .btn {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      border-radius: 3px;
+      padding: 7px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .btn:hover { opacity: 0.96; }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+
+    .btn.light {
+      background: transparent;
+      color: white;
+      border: 1px solid white;
+    }
+
+    .btn.secondary {
+      background: var(--navy-soft);
+      color: var(--navy);
+    }
+
+    .btn.danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .btn.small {
+      padding: 4px 9px;
+      font-size: 13px;
+    }
+
+    .parts {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      background: var(--navy-soft);
+      border-bottom: 1px solid #c9ced8;
+      padding: 0 20px;
+    }
+
+    .parts button {
+      background: transparent;
+      border: none;
+      color: var(--navy);
+      font-size: 14px;
+      padding: 9px 16px;
+      cursor: pointer;
+    }
+
+    .parts button.active {
+      background: white;
+      border-top: 3px solid var(--navy);
+      font-weight: 700;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: calc(100vh - 118px);
+    }
+
+    .passage, .questions {
+      overflow: auto;
+      padding: 22px 30px 60px;
+    }
+
+    .passage {
+      background: white;
+      border-right: 2px solid var(--line);
+      line-height: 1.65;
+    }
+
+    .passage h2 {
+      margin-top: 0;
+      color: var(--navy);
+      font-size: 20px;
+    }
+
+    .passage p {
+      margin: 0 0 14px;
+      text-align: justify;
+    }
+
+    .questions {
+      background: var(--panel-alt);
+    }
+
+    .instr {
+      font-weight: 700;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .qhead {
+      margin-top: 22px;
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .qinstr {
+      margin: 4px 0 14px;
+      color: #444;
+      font-style: italic;
+    }
+
+    .notes {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 14px 18px;
+    }
+
+    .nbox {
+      text-align: center;
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .nh, .noteline, .nt {
+      line-height: 2;
+      margin: 10px 0;
+    }
+
+    .nh {
+      font-weight: 700;
+    }
+
+    .optbox {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+
+    .optbox div {
+      margin: 4px 0;
+    }
+
+    .stmt {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+    }
+
+    .stmt-text {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .tf label {
+      display: inline-block;
+      margin-right: 18px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .opt {
+      display: block;
+      margin: 5px 0;
+    }
+
+    .qno {
+      display: inline-block;
+      min-width: 26px;
+      height: 22px;
+      line-height: 22px;
+      padding: 0 4px;
+      text-align: center;
+      background: var(--navy);
+      color: white;
+      border-radius: 2px;
+      font-size: 12px;
+      font-weight: 700;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    input.gap {
+      width: 130px;
+      padding: 3px 6px;
+      border: 1px solid #8a93a8;
+      border-radius: 2px;
+      font-size: 14px;
+      margin: 0 4px;
+      vertical-align: middle;
+    }
+
+    input.short {
+      width: 280px;
+      padding: 6px;
+      border: 1px solid #8a93a8;
+      border-radius: 2px;
+      font-size: 14px;
+    }
+
+    select {
+      padding: 5px;
+      font-size: 14px;
+      max-width: 100%;
+    }
+
+    input.gap:focus, input.short:focus {
+      outline: 2px solid var(--gold);
+    }
+
+    .result {
+      background: white;
+      border: 2px solid var(--navy);
+      border-radius: 4px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+
+    .result h3 {
+      margin: 0 0 8px;
+      color: var(--navy);
+    }
+
+    .result table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .result th, .result td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e3e6ee;
+    }
+
+    .result tr.ok td:last-child {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .result tr.bad td:last-child {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .builder {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 50;
+      overflow: auto;
+    }
+
+    .builder.hidden { display: none; }
+
+    .builder-top {
+      position: sticky;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--navy);
+      color: white;
+      padding: 12px 20px;
+      z-index: 2;
+    }
+
+    .builder-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #builderErrors {
+      position: sticky;
+      top: 56px;
+      z-index: 1;
+      padding: 0 20px;
+    }
+
+    #builderErrors div {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-radius: 3px;
+      margin: 6px 0;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    #builderBody {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 6px 20px 60px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+
+    .group-card { background: #fbfcfe; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .card-head strong {
+      flex: 1;
+      color: var(--navy);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      color: var(--navy);
+    }
+
+    .card h4 {
+      margin: 14px 0 6px;
+      color: var(--navy);
+      font-size: 13px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .card label {
+      display: block;
+      font-size: 13px;
+      color: #333;
+      margin: 6px 0;
+    }
+
+    .card label.check {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 14px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid #aab1c2;
+      border-radius: 3px;
+      background: white;
+      font-size: 14px;
+      padding: 6px 8px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    select {
+      width: auto;
+      max-width: 100%;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+    }
+
+    .row > input,
+    .row > textarea {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .row > select {
+      flex: 0 0 auto;
+    }
+
+    .row .label {
+      min-width: 22px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .item {
+      border-top: 1px dashed var(--line);
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    .item:first-child {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 0;
+    }
+
+    .item-indent {
+      margin-left: 12px;
+    }
+
+    .nums {
+      font-size: 12px;
+      background: var(--navy-soft);
+      color: var(--navy);
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+
+    .hint {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 6px 0;
+    }
+
+    @media (max-width: 820px) {
+      .split {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .passage, .questions {
+        padding: 18px 16px 32px;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        padding: 10px 14px;
+      }
+
+      .parts {
+        padding: 0 14px;
+      }
+
+      #builderBody {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">IELTS <span>Academic Reading</span></div>
+    <div class="title" id="testTitle">Reading</div>
+    <input class="student-name" id="studentName" placeholder="Student name" aria-label="Student name">
+    <div class="timer" id="timer" aria-live="polite">19:46</div>
+    <button class="btn light" id="editBtn" type="button">Test builder</button>
+    <button class="btn light" id="downloadBtn" type="button">Download</button>
+    <button class="btn" id="submitBtn" type="button">Submit</button>
+  </header>
+
+  <nav class="parts" id="partTabs"><button class="active" type="button" data-part="0">Reading Passage 1</button></nav>
+
+  <main class="split">
+    <section class="passage" id="passage"><h2>The Dead Sea Scrolls</h2><p>In late 1946 or early 1947, three Bedouin teenagers were tending their goats and sheep
+near the ancient settlement of Qumran, located on the northwest shore of the Dead
+Sea in what is now known as the West Bank. One of these young shepherds tossed a
+rock into an opening on the side of a cliff and was surprised to hear a shattering sound.
+He and his companions later entered the cave and stumbled across a collection of
+large clay jars, seven of which contained scrolls with writing on them. The teenagers
+took the seven scrolls to a nearby town where they were sold for a small sum to a local
+antiquities dealer. Word of the find spread, and Bedouins and archaeologists eventually
+unearthed tens of thousands of additional scroll fragments from 10 nearby caves;
+together they make up between 800 and 900 manuscripts. It soon became clear that this
+was one of the greatest archaeological discoveries ever made.</p><p>The origin of the Dead Sea Scrolls, which were written around 2,000 years ago between
+150 BCE and 70 CE, is still the subject of scholarly debate even today. According to the
+prevailing theory, they are the work of a population that inhabited the area until Roman
+troops destroyed the settlement around 70 CE. The area was known as Judea at that
+time, and the people are thought to have belonged to a group called the Essenes, a
+devout Jewish sect.</p><p>The majority of the texts on the Dead Sea Scrolls are in Hebrew, with some fragments
+written in an ancient version of its alphabet thought to have fallen out of use in the fifth
+century BCE. But there are other languages as well. Some scrolls are in Aramaic, the
+language spoken by many inhabitants of the region from the sixth century BCE to the
+siege of Jerusalem in 70 CE. In addition, several texts feature translations of the Hebrew
+Bible into Greek.</p><p>The Dead Sea Scrolls include fragments from every book of the Old Testament of the
+Bible except for the Book of Esther. The only entire book of the Hebrew Bible preserved
+among the manuscripts from Qumran is Isaiah; this copy, dated to the first century BCE,
+is considered the earliest biblical manuscript still in existence. Along with biblical texts,
+the scrolls include documents about sectarian regulations and religious writings that do
+not appear in the Old Testament.</p><p>The writing on the Dead Sea Scrolls is mostly in black or occasionally red ink, and
+the scrolls themselves are nearly all made of either parchment (animal skin) or an
+early form of paper called ‘papyrus’. The only exception is the scroll numbered 3Q15,
+which was created out of a combination of copper and tin. Known as the Copper
+Scroll, this curious document features letters chiselled onto metal – perhaps, as some
+have theorized, to better withstand the passage of time. One of the most intriguing
+manuscripts from Qumran, this is a sort of ancient treasure map that lists dozens of gold
+and silver caches. Using an unconventional vocabulary and odd spelling, it describes 64
+underground hiding places that supposedly contain riches buried for safekeeping. None
+of these hoards have been recovered, possibly because the Romans pillaged Judea
+during the first century CE. According to various hypotheses, the treasure belonged to
+local people, or was rescued from the Second Temple before its destruction or never
+existed to begin with.</p><p>Some of the Dead Sea Scrolls have been on interesting journeys. In 1948, a Syrian
+Orthodox archbishop known as Mar Samuel acquired four of the original seven scrolls
+from a Jerusalem shoemaker and part-time antiquity dealer, paying less than $100
+for them. He then travelled to the United States and unsuccessfully offered them to a
+number of universities, including Yale. Finally, in 1954, he placed an advertisement in
+the business newspaper The Wall Street Journal – under the category ‘Miscellaneous
+Items for Sale’ – that read: ‘Biblical Manuscripts dating back to at least 200 B.C. are for
+sale. This would be an ideal gift to an educational or religious institution by an individual
+or group.’ Fortunately, Israeli archaeologist and statesman Yigael Yadin negotiated their
+purchase and brought the scrolls back to Jerusalem, where they remain to this day.</p><p>In 2017, researchers from the University of Haifa restored and deciphered one of the last
+untranslated scrolls. The university’s Eshbal Ratson and Jonathan Ben-Dov spent one
+year reassembling the 60 fragments that make up the scroll. Deciphered from a band
+of coded text on parchment, the find provides insight into the community of people who
+wrote it and the 364-day calendar they would have used. The scroll names celebrations
+that indicate shifts in seasons and details two yearly religious events known from
+another Dead Sea Scroll. Only one more known scroll remains untranslated.</p></section>
+    <section class="questions" id="questions"><div class="instr">You should spend about 20 minutes on Questions 1–13, which are based on Reading
+Passage 1 below.</div><div class="qhead">The Dead Sea Scrolls</div><div class="qinstr">Complete the notes below.
+Choose ONE WORD ONLY from the passage for each answer.
+Write your answers in boxes 1–5 on your answer sheet.</div><div class="notes"><h3 class="nbox">The Dead Sea Scrolls</h3><p class="nh">Discovery</p><p class="nt">Qumran, 1946/7</p><p class="nt">three Bedouin shepherds in their teens were near an opening on side of cliff</p><p class="noteline">heard a noise of breaking when one teenager threw a <span class="qno">1</span><input class="gap" data-no="1" value="" autocomplete="off" spellcheck="false"></p><p class="noteline">teenagers went into the <span class="qno">2</span><input class="gap" data-no="2" value="" autocomplete="off" spellcheck="false"> made of <span class="qno">3</span><input class="gap" data-no="3" value="" autocomplete="off" spellcheck="false"></p><p class="nh">The scrolls</p><p class="nt">date from between 150 BCE and 70 CE</p><p class="noteline">thought to have been written by group of people known as the <span class="qno">4</span><input class="gap" data-no="4" value="" autocomplete="off" spellcheck="false"></p><p class="noteline">written mainly in the <span class="qno">5</span><input class="gap" data-no="5" value="" autocomplete="off" spellcheck="false"> language</p><p class="nt">most are on religious topics, written using ink on parchment or papyrus</p></div></section>
+  </main>
+
+  <script type="text/plain" id="test-source">{"title":"Reading","time":20,"labels":false,"parts":[{"passageTitle":"The Dead Sea Scrolls","instruction":"You should spend about 20 minutes on Questions 1–13, which are based on Reading\nPassage 1 below.","paragraphs":["In late 1946 or early 1947, three Bedouin teenagers were tending their goats and sheep\nnear the ancient settlement of Qumran, located on the northwest shore of the Dead\nSea in what is now known as the West Bank. One of these young shepherds tossed a\nrock into an opening on the side of a cliff and was surprised to hear a shattering sound.\nHe and his companions later entered the cave and stumbled across a collection of\nlarge clay jars, seven of which contained scrolls with writing on them. The teenagers\ntook the seven scrolls to a nearby town where they were sold for a small sum to a local\nantiquities dealer. Word of the find spread, and Bedouins and archaeologists eventually\nunearthed tens of thousands of additional scroll fragments from 10 nearby caves;\ntogether they make up between 800 and 900 manuscripts. It soon became clear that this\nwas one of the greatest archaeological discoveries ever made.","The origin of the Dead Sea Scrolls, which were written around 2,000 years ago between\n150 BCE and 70 CE, is still the subject of scholarly debate even today. According to the\nprevailing theory, they are the work of a population that inhabited the area until Roman\ntroops destroyed the settlement around 70 CE. The area was known as Judea at that\ntime, and the people are thought to have belonged to a group called the Essenes, a\ndevout Jewish sect.","The majority of the texts on the Dead Sea Scrolls are in Hebrew, with some fragments\nwritten in an ancient version of its alphabet thought to have fallen out of use in the fifth\ncentury BCE. But there are other languages as well. Some scrolls are in Aramaic, the\nlanguage spoken by many inhabitants of the region from the sixth century BCE to the\nsiege of Jerusalem in 70 CE. In addition, several texts feature translations of the Hebrew\nBible into Greek.","The Dead Sea Scrolls include fragments from every book of the Old Testament of the\nBible except for the Book of Esther. The only entire book of the Hebrew Bible preserved\namong the manuscripts from Qumran is Isaiah; this copy, dated to the first century BCE,\nis considered the earliest biblical manuscript still in existence. Along with biblical texts,\nthe scrolls include documents about sectarian regulations and religious writings that do\nnot appear in the Old Testament.","The writing on the Dead Sea Scrolls is mostly in black or occasionally red ink, and\nthe scrolls themselves are nearly all made of either parchment (animal skin) or an\nearly form of paper called ‘papyrus’. The only exception is the scroll numbered 3Q15,\nwhich was created out of a combination of copper and tin. Known as the Copper\nScroll, this curious document features letters chiselled onto metal – perhaps, as some\nhave theorized, to better withstand the passage of time. One of the most intriguing\nmanuscripts from Qumran, this is a sort of ancient treasure map that lists dozens of gold\nand silver caches. Using an unconventional vocabulary and odd spelling, it describes 64\nunderground hiding places that supposedly contain riches buried for safekeeping. None\nof these hoards have been recovered, possibly because the Romans pillaged Judea\nduring the first century CE. According to various hypotheses, the treasure belonged to\nlocal people, or was rescued from the Second Temple before its destruction or never\nexisted to begin with.","Some of the Dead Sea Scrolls have been on interesting journeys. In 1948, a Syrian\nOrthodox archbishop known as Mar Samuel acquired four of the original seven scrolls\nfrom a Jerusalem shoemaker and part-time antiquity dealer, paying less than $100\nfor them. He then travelled to the United States and unsuccessfully offered them to a\nnumber of universities, including Yale. Finally, in 1954, he placed an advertisement in\nthe business newspaper The Wall Street Journal – under the category ‘Miscellaneous\nItems for Sale’ – that read: ‘Biblical Manuscripts dating back to at least 200 B.C. are for\nsale. This would be an ideal gift to an educational or religious institution by an individual\nor group.’ Fortunately, Israeli archaeologist and statesman Yigael Yadin negotiated their\npurchase and brought the scrolls back to Jerusalem, where they remain to this day.","In 2017, researchers from the University of Haifa restored and deciphered one of the last\nuntranslated scrolls. The university’s Eshbal Ratson and Jonathan Ben-Dov spent one\nyear reassembling the 60 fragments that make up the scroll. Deciphered from a band\nof coded text on parchment, the find provides insight into the community of people who\nwrote it and the 364-day calendar they would have used. The scroll names celebrations\nthat indicate shifts in seasons and details two yearly religious events known from\nanother Dead Sea Scroll. Only one more known scroll remains untranslated."],"groups":[{"type":"GAP","heading":"The Dead Sea Scrolls","instruction":"Complete the notes below.\nChoose ONE WORD ONLY from the passage for each answer.\nWrite your answers in boxes 1–5 on your answer sheet.","box":"The Dead Sea Scrolls","lines":[{"kind":"h","text":"Discovery"},{"kind":"t","text":"Qumran, 1946/7"},{"kind":"t","text":"three Bedouin shepherds in their teens were near an opening on side of cliff"},{"kind":"b","text":"heard a noise of breaking when one teenager threw a [rock]"},{"kind":"b","text":"teenagers went into the [cave] made of [clay]"},{"kind":"h","text":"The scrolls"},{"kind":"t","text":"date from between 150 BCE and 70 CE"},{"kind":"b","text":"thought to have been written by group of people known as the [Essenes]"},{"kind":"b","text":"written mainly in the [Hebrew] language"},{"kind":"t","text":"most are on religious topics, written using ink on parchment or papyrus"}],"items":[],"options":[]}]}]}</script>
+
+  <div class="builder hidden" id="builder">
+    <div class="builder-top">
+      <strong>Test builder</strong>
+      <div class="builder-actions">
+        <button class="btn secondary small" type="button" data-act="example">Load example</button>
+        <button class="btn small" type="button" data-act="apply">Apply test</button>
+        <button class="btn secondary small" type="button" data-act="close">Close</button>
+      </div>
+    </div>
+
+    <div id="builderErrors"></div>
+    <div id="builderBody">
+        <div class="card">
+          <h3>Test details</h3>
+          <div class="grid-2">
+            <label>Test title
+              <input data-k="title" value="Reading">
+            </label>
+            <label>Time (minutes)
+              <input type="number" min="1" data-k="time" value="20">
+            </label>
+          </div>
+          <label class="check">
+            <input type="checkbox" data-k="labels">
+            Show paragraph letters (A, B, C…)
+          </label>
+        </div>
+      
+        <div class="card">
+          <div class="card-head">
+            <strong>Passage 1</strong>
+            <button class="btn danger small" type="button" data-act="del-passage" data-p="0">Remove passage</button>
+          </div>
+
+          <label>Passage title
+            <input data-k="ptitle" data-p="0" value="The Dead Sea Scrolls">
+          </label>
+
+          <label>Instruction shown above the questions
+            <textarea rows="2" data-k="pinstr" data-p="0">You should spend about 20 minutes on Questions 1–13, which are based on Reading
+Passage 1 below.</textarea>
+          </label>
+
+          <h4>Paragraphs</h4>
+      
+          <div class="row">
+            <span class="label"></span>
+            <textarea rows="4" data-k="para" data-p="0" data-i="0">In late 1946 or early 1947, three Bedouin teenagers were tending their goats and sheep
+near the ancient settlement of Qumran, located on the northwest shore of the Dead
+Sea in what is now known as the West Bank. One of these young shepherds tossed a
+rock into an opening on the side of a cliff and was surprised to hear a shattering sound.
+He and his companions later entered the cave and stumbled across a collection of
+large clay jars, seven of which contained scrolls with writing on them. The teenagers
+took the seven scrolls to a nearby town where they were sold for a small sum to a local
+antiquities dealer. Word of the find spread, and Bedouins and archaeologists eventually
+unearthed tens of thousands of additional scroll fragments from 10 nearby caves;
+together they make up between 800 and 900 manuscripts. It soon became clear that this
+was one of the greatest archaeological discoveries ever made.</textarea>
+            <button class="btn danger small" type="button" data-act="del-para" data-p="0" data-i="0">✕</button>
+          </div>
+        
+          <div class="row">
+            <span class="label"></span>
+            <textarea rows="4" data-k="para" data-p="0" data-i="1">The origin of the Dead Sea Scrolls, which were written around 2,000 years ago between
+150 BCE and 70 CE, is still the subject of scholarly debate even today. According to the
+prevailing theory, they are the work of a population that inhabited the area until Roman
+troops destroyed the settlement around 70 CE. The area was known as Judea at that
+time, and the people are thought to have belonged to a group called the Essenes, a
+devout Jewish sect.</textarea>
+            <button class="btn danger small" type="button" data-act="del-para" data-p="0" data-i="1">✕</button>
+          </div>
+        
+          <div class="row">
+            <span class="label"></span>
+            <textarea rows="4" data-k="para" data-p="0" data-i="2">The majority of the texts on the Dead Sea Scrolls are in Hebrew, with some fragments
+written in an ancient version of its alphabet thought to have fallen out of use in the fifth
+century BCE. But there are other languages as well. Some scrolls are in Aramaic, the
+language spoken by many inhabitants of the region from the sixth century BCE to the
+siege of Jerusalem in 70 CE. In addition, several texts feature translations of the Hebrew
+Bible into Greek.</textarea>
+            <button class="btn danger small" type="button" data-act="del-para" data-p="0" data-i="2">✕</button>
+          </div>
+        
+          <div class="row">
+            <span class="label"></span>
+            <textarea rows="4" data-k="para" data-p="0" data-i="3">The Dead Sea Scrolls include fragments from every book of the Old Testament of the
+Bible except for the Book of Esther. The only entire book of the Hebrew Bible preserved
+among the manuscripts from Qumran is Isaiah; this copy, dated to the first century BCE,
+is considered the earliest biblical manuscript still in existence. Along with biblical texts,
+the scrolls include documents about sectarian regulations and religious writings that do
+not appear in the Old Testament.</textarea>
+            <button class="btn danger small" type="button" data-act="del-para" data-p="0" data-i="3">✕</button>
+          </div>
+        
+          <div class="row">
+            <span class="label"></span>
+            <textarea rows="4" data-k="para" data-p="0" data-i="4">The writing on the Dead Sea Scrolls is mostly in black or occasionally red ink, and
+the scrolls themselves are nearly all made of either parchment (animal skin) or an
+early form of paper called ‘papyrus’. The only exception is the scroll numbered 3Q15,
+which was created out of a combination of copper and tin. Known as the Copper
+Scroll, this curious document features letters chiselled onto metal – perhaps, as some
+have theorized, to better withstand the passage of time. One of the most intriguing
+manuscripts from Qumran, this is a sort of ancient treasure map that lists dozens of gold
+and silver caches. Using an unconventional vocabulary and odd spelling, it describes 64
+underground hiding places that supposedly contain riches buried for safekeeping. None
+of these hoards have been recovered, possibly because the Romans pillaged Judea
+during the first century CE. According to various hypotheses, the treasure belonged to
+local people, or was rescued from the Second Temple before its destruction or never
+existed to begin with.</textarea>
+            <button class="btn danger small" type="button" data-act="del-para" data-p="0" data-i="4">✕</button>
+          </div>
+        
+          <div class="row">
+            <span class="label"></span>
+            <textarea rows="4" data-k="para" data-p="0" data-i="5">Some of the Dead Sea Scrolls have been on interesting journeys. In 1948, a Syrian
+Orthodox archbishop known as Mar Samuel acquired four of the original seven scrolls
+from a Jerusalem shoemaker and part-time antiquity dealer, paying less than $100
+for them. He then travelled to the United States and unsuccessfully offered them to a
+number of universities, including Yale. Finally, in 1954, he placed an advertisement in
+the business newspaper The Wall Street Journal – under the category ‘Miscellaneous
+Items for Sale’ – that read: ‘Biblical Manuscripts dating back to at least 200 B.C. are for
+sale. This would be an ideal gift to an educational or religious institution by an individual
+or group.’ Fortunately, Israeli archaeologist and statesman Yigael Yadin negotiated their
+purchase and brought the scrolls back to Jerusalem, where they remain to this day.</textarea>
+            <button class="btn danger small" type="button" data-act="del-para" data-p="0" data-i="5">✕</button>
+          </div>
+        
+          <div class="row">
+            <span class="label"></span>
+            <textarea rows="4" data-k="para" data-p="0" data-i="6">In 2017, researchers from the University of Haifa restored and deciphered one of the last
+untranslated scrolls. The university’s Eshbal Ratson and Jonathan Ben-Dov spent one
+year reassembling the 60 fragments that make up the scroll. Deciphered from a band
+of coded text on parchment, the find provides insight into the community of people who
+wrote it and the 364-day calendar they would have used. The scroll names celebrations
+that indicate shifts in seasons and details two yearly religious events known from
+another Dead Sea Scroll. Only one more known scroll remains untranslated.</textarea>
+            <button class="btn danger small" type="button" data-act="del-para" data-p="0" data-i="6">✕</button>
+          </div>
+        
+          <button class="btn secondary small" type="button" data-act="add-para" data-p="0">+ Add paragraph</button>
+          <h4>Questions</h4>
+      
+        <div class="card group-card">
+          <div class="card-head">
+            <strong>Question group 1</strong>
+            <span class="nums">Numbers 1–4</span>
+            <button class="btn danger small" type="button" data-act="del-group" data-p="0" data-g="0">Remove group</button>
+          </div>
+
+          <div class="grid-2">
+            <label>Question type
+              <select data-k="gtype" data-p="0" data-g="0">
+                <option value="GAP" selected="">Notes / gap fill</option><option value="TFNG">True / False / Not Given</option><option value="YNNG">Yes / No / Not Given</option><option value="MCQ">Multiple choice</option><option value="MATCH">Matching (headings, features…)</option><option value="SHORT">Short answer</option>
+              </select>
+            </label>
+
+            <label>Heading
+              <input data-k="ghead" data-p="0" data-g="0" value="The Dead Sea Scrolls">
+            </label>
+          </div>
+
+          <label>Instruction
+            <textarea rows="2" data-k="ginstr" data-p="0" data-g="0">Complete the notes below.
+Choose ONE WORD ONLY from the passage for each answer.
+Write your answers in boxes 1–5 on your answer sheet.</textarea>
+          </label>
+      
+        <label>Box title (optional)
+          <input data-k="gbox" data-p="0" data-g="0" value="The Dead Sea Scrolls">
+        </label>
+        <h4>Lines in the box</h4>
+      
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="0">
+              <option value="h" selected="">Sub-heading</option>
+              <option value="b">Bullet</option>
+              <option value="t">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="0" value="Discovery" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="0">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="1">
+              <option value="h">Sub-heading</option>
+              <option value="b">Bullet</option>
+              <option value="t" selected="">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="1" value="Qumran, 1946/7" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="1">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="2">
+              <option value="h">Sub-heading</option>
+              <option value="b">Bullet</option>
+              <option value="t" selected="">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="2" value="three Bedouin shepherds in their teens were near an opening on side of cliff" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="2">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="3">
+              <option value="h">Sub-heading</option>
+              <option value="b" selected="">Bullet</option>
+              <option value="t">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="3" value="heard a noise of breaking when one teenager threw a [rock]" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="3">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="4">
+              <option value="h">Sub-heading</option>
+              <option value="b" selected="">Bullet</option>
+              <option value="t">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="4" value="teenagers went into the [cave] made of [clay]" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="4">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="5">
+              <option value="h" selected="">Sub-heading</option>
+              <option value="b">Bullet</option>
+              <option value="t">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="5" value="The scrolls" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="5">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="6">
+              <option value="h">Sub-heading</option>
+              <option value="b">Bullet</option>
+              <option value="t" selected="">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="6" value="date from between 150 BCE and 70 CE" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="6">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="7">
+              <option value="h">Sub-heading</option>
+              <option value="b" selected="">Bullet</option>
+              <option value="t">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="7" value="thought to have been written by group of people known as the [Essenes}" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="7">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="8">
+              <option value="h">Sub-heading</option>
+              <option value="b" selected="">Bullet</option>
+              <option value="t">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="8" value="written mainly in the [Hebrew] language" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="8">✕</button>
+          </div>
+        
+          <div class="row">
+            <select data-k="lkind" data-p="0" data-g="0" data-i="9">
+              <option value="h">Sub-heading</option>
+              <option value="b">Bullet</option>
+              <option value="t" selected="">Plain line</option>
+            </select>
+            <input data-k="line" data-p="0" data-g="0" data-i="9" value="most are on religious topics, written using ink on parchment or papyrus" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" data-p="0" data-g="0" data-i="9">✕</button>
+          </div>
+        
+        <button class="btn secondary small" type="button" data-act="add-line" data-p="0" data-g="0">+ Add line</button>
+        <p class="hint">Put each answer in square brackets, e.g. <em>Hives are on flat [rooftops]</em>. For alternatives use a slash: [rooftops/rooftop].</p>
+      </div>
+          <button class="btn secondary small" type="button" data-act="add-group" data-p="0">+ Add question group</button>
+        </div>
+      <button class="btn secondary" type="button" data-act="add-passage">+ Add passage</button></div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ielts-reading-test-builder-v1";
+    const TYPE_LABELS = [
+      ["GAP", "Notes / gap fill"],
+      ["TFNG", "True / False / Not Given"],
+      ["YNNG", "Yes / No / Not Given"],
+      ["MCQ", "Multiple choice"],
+      ["MATCH", "Matching (headings, features…)"],
+      ["SHORT", "Short answer"]
+    ];
+    const TF_OPTIONS = {
+      TFNG: ["TRUE", "FALSE", "NOT GIVEN"],
+      YNNG: ["YES", "NO", "NOT GIVEN"]
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    const esc = (value) =>
+      String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+
+    const clone = (obj) => JSON.parse(JSON.stringify(obj));
+
+    const unesc = (text) => String(text || "").split("<\\/script").join("</script");
+
+    const escForStore = (text) => String(text || "").split("</" + "script").join("<\\/script");
+
+    const letterForIndex = (index) => String.fromCharCode(65 + index);
+
+    const normalizeAnswer = (value) =>
+      String(value ?? "")
+        .toLowerCase()
+        .replace(/[.,;:!?]+$/, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const createItem = (type, data = {}) => {
+      const base = {
+        text: "",
+        answer: "",
+        options: [],
+        correct: [],
+        alts: ""
+      };
+      if (type === "TFNG") base.answer = "TRUE";
+      if (type === "YNNG") base.answer = "YES";
+      if (type === "MATCH") base.answer = "A";
+      if (type === "MCQ") base.options = ["", "", ""];
+      return { ...base, ...data };
+    };
+
+    const newGroup = (type = "GAP") => ({
+      type,
+      heading: "",
+      instruction: "",
+      box: "",
+      lines: [],
+      items: [],
+      options: []
+    });
+
+    const newPassage = () => ({
+      passageTitle: "",
+      instruction: "",
+      paragraphs: [""],
+      groups: []
+    });
+
+    const EXAMPLE_DOC = {
+      title: "Practice Reading Test",
+      time: 60,
+      labels: true,
+      parts: [{
+        passageTitle: "Urban beekeeping",
+        instruction: "You should spend about 20 minutes on Questions 1–18, which are based on the reading passage below.",
+        paragraphs: [
+          "Urban beekeeping has grown quickly over the past two decades. In many large cities, flat rooftops, balconies and community gardens now house hives that would once have been found only in the countryside.",
+          "The movement began partly as a response to concern about declining pollinator populations. Many farmers and researchers have warned that wild bees are under pressure from habitat loss and pesticides.",
+          "Not everyone is convinced, however. Ecologists point out that a dense concentration of hives can place strain on wild bee species that compete for the same flowers. Others question whether urban areas offer enough forage during the whole year.",
+          "Most experienced keepers agree that success depends on careful planning. Hives need a water source nearby, a sheltered position and a neighbour who does not object. Beekeepers are also advised to check colonies regularly and to keep expectations realistic about the size of each harvest."
+        ],
+        groups: [
+          {
+            type: "GAP",
+            heading: "Questions 1–6",
+            instruction: "Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+            box: "Urban beekeeping: key points",
+            lines: [
+              { kind: "h", text: "Growth" },
+              { kind: "b", text: "Hives are now found on flat [rooftops/rooftop] and in community gardens." },
+              { kind: "b", text: "Cities can offer bees a varied [diet], because gardens and parks flower at different times." },
+              { kind: "h", text: "Concerns" },
+              { kind: "b", text: "Concern about the decline of [pollinator] populations encouraged the movement." },
+              { kind: "b", text: "Some councils ask residents to [register] their hives." },
+              { kind: "b", text: "Dense hives may harm native wild bee [species]." },
+              { kind: "t", text: "Every hive needs a nearby [water] source." }
+            ],
+            items: [],
+            options: []
+          },
+          {
+            type: "TFNG",
+            heading: "Questions 7–9",
+            instruction: "Do the following statements agree with the information given in the passage? Write TRUE, FALSE or NOT GIVEN.",
+            items: [
+              createItem("TFNG", { text: "Beekeeping in cities has become more popular over the last twenty years.", answer: "TRUE" }),
+              createItem("TFNG", { text: "Most urban beekeepers make a good living by selling honey.", answer: "NOT GIVEN" }),
+              createItem("TFNG", { text: "Wild bees may struggle when many hives are placed in one area.", answer: "TRUE" })
+            ]
+          },
+          {
+            type: "MCQ",
+            heading: "Question 10",
+            instruction: "Choose the correct letter, A, B or C.",
+            items: [
+              createItem("MCQ", {
+                text: "According to the passage, what do some councils ask residents to do?",
+                options: ["build new gardens", "register their hives", "sell honey locally"],
+                correct: ["B"]
+              })
+            ]
+          },
+          {
+            type: "MCQ",
+            heading: "Questions 11–12",
+            instruction: "Choose TWO letters, A–E.",
+            items: [
+              createItem("MCQ", {
+                text: "Which TWO requirements for a hive does the passage mention?",
+                options: ["a water source nearby", "a sheltered position", "a lot of sunlight", "a large garden", "a neighbour who does not object"],
+                correct: ["A", "B"]
+              })
+            ]
+          },
+          {
+            type: "MATCH",
+            heading: "Questions 13–16",
+            instruction: "The passage has four paragraphs, A–D. Choose the correct heading for each paragraph from the list of headings below. There is one extra heading.",
+            options: ["Why cities suit bees", "Concern about wild pollinators", "Arguments against urban hives", "Practical requirements for keepers", "The rising cost of honey"],
+            items: [
+              createItem("MATCH", { text: "Paragraph A", answer: "A" }),
+              createItem("MATCH", { text: "Paragraph B", answer: "B" }),
+              createItem("MATCH", { text: "Paragraph C", answer: "C" }),
+              createItem("MATCH", { text: "Paragraph D", answer: "D" })
+            ]
+          },
+          {
+            type: "SHORT",
+            heading: "Questions 17–18",
+            instruction: "Answer the questions. Choose ONE WORD ONLY from the passage for each answer.",
+            items: [
+              createItem("SHORT", { text: "How often are colonies advised to be checked?", alts: "regularly" }),
+              createItem("SHORT", { text: "How would you describe the honey harvest from a single rooftop colony?", alts: "small" })
+            ]
+          }
+        ]
+      }]
+    };
+
+    const state = {
+      doc: null,
+      test: null,
+      part: 0,
+      responses: {},
+      submitted: false,
+      timerId: null,
+      secondsLeft: 0,
+      resultHTML: ""
+    };
+
+    function compileTest(doc) {
+      const errors = [];
+      let nextNumber = 0;
+
+      const next = () => ++nextNumber;
+
+      const parts = (doc.parts || []).map((passage, pIndex) => {
+        const paragraphs = (passage.paragraphs || []).filter((s) => String(s).trim());
+        if (!paragraphs.length) {
+          errors.push(`Passage ${pIndex + 1}: add at least one paragraph`);
+        }
+
+        const groups = (passage.groups || []).map((group, gIndex) =>
+          compileGroup(group, next, errors, `Passage ${pIndex + 1}, group ${gIndex + 1}`)
+        );
+
+        return {
+          passageTitle: passage.passageTitle || `Passage ${pIndex + 1}`,
+          instruction: passage.instruction || "",
+          paragraphs,
+          groups
+        };
+      });
+
+      if (!parts.length) {
+        errors.push("Add at least one passage");
+      }
+
+      return {
+        test: {
+          title: doc.title || "Untitled test",
+          time: Math.max(1, Number(doc.time) || 60),
+          labels: doc.labels !== false,
+          parts
+        },
+        errors
+      };
+    }
+
+    function compileGroup(group, next, errors, where) {
+      const out = {
+        type: group.type,
+        heading: group.heading || "",
+        instruction: group.instruction || "",
+        box: group.box || "",
+        lines: [],
+        items: [],
+        options: [],
+        range: ""
+      };
+
+      const numbers = [];
+
+      if (group.type === "GAP") {
+        (group.lines || []).forEach((line) => {
+          if (!String(line.text || "").trim()) return;
+
+          const text = String(line.text).replace(/\[([^\]]+)\]/g, (_, inner) => {
+            const no = next();
+            numbers.push(no);
+            out.items.push({
+              nos: [no],
+              text: "",
+              answers: inner.split("/").map((v) => v.trim()).filter(Boolean)
+            });
+            return `{${no}}`;
+          });
+
+          out.lines.push({ kind: line.kind || "b", text });
+        });
+
+        if (!numbers.length) {
+          errors.push(`${where}: add at least one answer in [square brackets]`);
+        }
+      } else if (group.type === "MATCH") {
+        out.options = (group.options || []).slice();
+
+        if (out.options.length < 2) {
+          errors.push(`${where}: add at least two options`);
+        }
+
+        (group.items || []).forEach((item, i) => {
+          const no = next();
+          numbers.push(no);
+
+          if (!String(item.text || "").trim()) {
+            errors.push(`${where}, item ${i + 1}: type the item text`);
+          }
+
+          if (!item.answer || !/^[A-Z]$/i.test(item.answer) || letterToIndex(item.answer) >= out.options.length) {
+            errors.push(`${where}, item ${i + 1}: choose the answer letter`);
+          }
+
+          out.items.push({
+            nos: [no],
+            text: item.text || "",
+            answers: [item.answer || ""]
+          });
+        });
+      } else if (group.type === "MCQ") {
+        (group.items || []).forEach((item, i) => {
+          const where2 = `${where}, item ${i + 1}`;
+          const correct = [...(item.correct || [])].sort();
+
+          if (!String(item.text || "").trim()) {
+            errors.push(`${where2}: type the question`);
+          }
+
+          if ((item.options || []).filter((v) => String(v).trim()).length < 2) {
+            errors.push(`${where2}: add at least two options`);
+          }
+
+          if (!correct.length) {
+            errors.push(`${where2}: tick the correct answer`);
+          }
+
+          const neededCount = Math.max(1, correct.length);
+          const nos = [];
+          for (let j = 0; j < neededCount; j++) {
+            const no = next();
+            numbers.push(no);
+            nos.push(no);
+          }
+
+          out.items.push({
+            nos,
+            text: item.text || "",
+            options: (item.options || []).slice(),
+            answers: correct.length ? correct : ["A"],
+            multi: nos.length > 1
+          });
+        });
+      } else if (group.type === "SHORT") {
+        (group.items || []).forEach((item, i) => {
+          const no = next();
+          numbers.push(no);
+
+          const answers = String(item.alts || "")
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean);
+
+          if (!String(item.text || "").trim()) {
+            errors.push(`${where}, item ${i + 1}: type the question`);
+          }
+
+          if (!answers.length) {
+            errors.push(`${where}, item ${i + 1}: add the accepted answer(s)`);
+          }
+
+          out.items.push({
+            nos: [no],
+            text: item.text || "",
+            answers
+          });
+        });
+      } else {
+        const allowed = TF_OPTIONS[group.type] || TF_OPTIONS.TFNG;
+
+        (group.items || []).forEach((item, i) => {
+          const no = next();
+          numbers.push(no);
+
+          if (!String(item.text || "").trim()) {
+            errors.push(`${where}, item ${i + 1}: type the statement`);
+          }
+
+          if (!allowed.includes(item.answer)) {
+            errors.push(`${where}, item ${i + 1}: choose the answer`);
+          }
+
+          out.items.push({
+            nos: [no],
+            text: item.text || "",
+            answers: [item.answer]
+          });
+        });
+      }
+
+      out.range = numbers.length
+        ? numbers.length > 1
+          ? `${numbers[0]}–${numbers[numbers.length - 1]}`
+          : `${numbers[0]}`
+        : "";
+
+      return out;
+    }
+
+    function letterToIndex(letter) {
+      if (!letter) return -1;
+      return letter.toUpperCase().charCodeAt(0) - 65;
+    }
+
+    function getStoredDoc() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveDoc() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.doc));
+      } catch {}
+    }
+
+    function renderGapLine(lineText, disabled) {
+      return esc(lineText).replace(/\{(\d+)\}/g, (_, no) => {
+        const value = esc(state.responses[no] || "");
+        return `<span class="qno">${no}</span><input class="gap" data-no="${no}" value="${value}" ${disabled} autocomplete="off" spellcheck="false">`;
+      });
+    }
+
+    function badge(numbers) {
+      const text = numbers.length > 1 ? `${numbers[0]}–${numbers[numbers.length - 1]}` : numbers[0];
+      return `<span class="qno">${text}</span>`;
+    }
+
+    function renderItem(group, item, disabled) {
+      const no = item.nos[0];
+
+      if (group.type === "TFNG" || group.type === "YNNG") {
+        const options = TF_OPTIONS[group.type].map((option) => {
+          const checked = state.responses[no] === option ? "checked" : "";
+          return `<label><input type="radio" name="q${no}" value="${option}" data-no="${no}" ${checked} ${disabled}> ${option}</label>`;
+        }).join("");
+        return `<div class="stmt"><div class="stmt-text">${badge(item.nos)}${esc(item.text)}</div><div class="tf">${options}</div></div>`;
+      }
+
+      if (group.type === "MCQ") {
+        if (item.multi) {
+          const chosen = Array.isArray(state.responses[no]) ? state.responses[no] : [];
+          const options = item.options.map((opt, index) => {
+            const letter = letterForIndex(index);
+            const checked = chosen.includes(letter) ? "checked" : "";
+            return `<label class="opt"><input type="checkbox" data-no="${no}" value="${letter}" ${checked} ${disabled}> ${letter}. ${esc(opt)}</label>`;
+          }).join("");
+          return `<div class="stmt"><div class="stmt-text">${badge(item.nos)}${esc(item.text)}</div><div class="tf">${options}</div></div>`;
+        }
+
+        const options = item.options.map((opt, index) => {
+          const letter = letterForIndex(index);
+          const checked = state.responses[no] === letter ? "checked" : "";
+          return `<label class="opt"><input type="radio" name="q${no}" value="${letter}" data-no="${no}" ${checked} ${disabled}> ${letter}. ${esc(opt)}</label>`;
+        }).join("");
+
+        return `<div class="stmt"><div class="stmt-text">${badge(item.nos)}${esc(item.text)}</div><div class="tf">${options}</div></div>`;
+      }
+
+      const value = esc(state.responses[no] || "");
+      return `<div class="stmt"><div class="stmt-text">${badge(item.nos)}${esc(item.text)}</div><div class="tf"><input class="short" type="text" data-no="${no}" value="${value}" ${disabled} autocomplete="off"></div></div>`;
+    }
+
+    function renderGroup(group) {
+      const disabled = state.submitted ? "disabled" : "";
+
+      let html = `<div class="qhead">${esc(group.heading)}</div><div class="qinstr">${esc(group.instruction)}</div>`;
+
+      if (group.type === "GAP") {
+        const body = group.lines.map((line) => {
+          const klass = line.kind === "h" ? "nh" : line.kind === "t" ? "nt" : "noteline";
+          return `<p class="${klass}">${renderGapLine(line.text, disabled)}</p>`;
+        }).join("");
+
+        const title = group.box ? `<h3 class="nbox">${esc(group.box)}</h3>` : "";
+        return html + `<div class="notes">${title}${body}</div>`;
+      }
+
+      if (group.type === "MATCH") {
+        const optionList = group.options.map((opt, i) => `<div><b>${letterForIndex(i)}</b> ${esc(opt)}</div>`).join("");
+        html += `<div class="optbox"><strong>Options</strong>${optionList}</div>`;
+
+        html += group.items.map((item) => {
+          const no = item.nos[0];
+          const selected = state.responses[no] || "";
+          const options = group.options.map((_, i) => {
+            const letter = letterForIndex(i);
+            const chosen = selected === letter ? "selected" : "";
+            return `<option value="${letter}" ${chosen}>${letter} — ${esc(group.options[i])}</option>`;
+          }).join("");
+
+          return `<div class="stmt">
+            <div class="stmt-text">${badge(item.nos)}${esc(item.text)}</div>
+            <select data-no="${no}" ${disabled}>
+              <option value="">— choose —</option>
+              ${options}
+            </select>
+          </div>`;
+        }).join("");
+
+        return html;
+      }
+
+      return html + group.items.map((item) => renderItem(group, item, disabled)).join("");
+    }
+
+    function renderPassage() {
+      const part = state.test.parts[state.part];
+      const paragraphs = part.paragraphs.map((p, i) => {
+        const label = state.test.labels === false ? "" : `<strong>${letterForIndex(i)}</strong>&nbsp;&nbsp;`;
+        return `<p>${label}${esc(p)}</p>`;
+      }).join("");
+
+      $("passage").innerHTML = `<h2>${esc(part.passageTitle)}</h2>${paragraphs}`;
+    }
+
+    function renderQuestions() {
+      const part = state.test.parts[state.part];
+      $("questions").innerHTML =
+        state.resultHTML +
+        (part.instruction ? `<div class="instr">${esc(part.instruction)}</div>` : "") +
+        part.groups.map(renderGroup).join("");
+    }
+
+    function renderTabs() {
+      $("partTabs").innerHTML = state.test.parts.map((_, i) => {
+        const active = i === state.part ? "active" : "";
+        return `<button class="${active}" type="button" data-part="${i}">Reading Passage ${i + 1}</button>`;
+      }).join("");
+    }
+
+    function renderAll() {
+      renderTabs();
+      renderPassage();
+      renderQuestions();
+    }
+
+    function updateTimer() {
+      const timer = $("timer");
+      const minutes = String(Math.floor(state.secondsLeft / 60)).padStart(2, "0");
+      const seconds = String(state.secondsLeft % 60).padStart(2, "0");
+      timer.textContent = `${minutes}:${seconds}`;
+      timer.classList.toggle("warn", state.secondsLeft <= 300);
+    }
+
+    function tick() {
+      if (state.submitted) return;
+      state.secondsLeft -= 1;
+      updateTimer();
+
+      if (state.secondsLeft <= 0) {
+        submitTest(true);
+      }
+    }
+
+    function answerMatches(expectedAnswer, submittedValue) {
+      const expected = normalizeAnswer(expectedAnswer);
+      const actual = normalizeAnswer(submittedValue);
+      return actual !== "" && actual === expected;
+    }
+
+    function markItem(item) {
+      if (item.multi) {
+        const selected = Array.isArray(state.responses[item.nos[0]]) ? state.responses[item.nos[0]] : [];
+        const expected = item.answers.slice();
+        const selectedSet = new Set(selected);
+        const expectedSet = new Set(expected);
+
+        const isCorrect =
+          selectedSet.size === expectedSet.size &&
+          [...selectedSet].every((value) => expectedSet.has(value));
+
+        return item.nos.map((no, index) => {
+          const answer = item.answers[index] ?? "";
+          const mine = selected.join(", ") || "";
+          return {
+            no,
+            ok: isCorrect && index < item.answers.length && selected.includes(answer),
+            mine,
+            correct: answer
+          };
+        });
+      }
+
+      const no = item.nos[0];
+      const mine = state.responses[no] || "";
+      const isCorrect = item.answers.some((answer) => answerMatches(answer, mine));
+      return [{ no, ok: mine !== "" && isCorrect, mine, correct: item.answers[0] || "" }];
+    }
+
+    function allMarks() {
+      const results = [];
+      state.test.parts.forEach((part) => {
+        part.groups.forEach((group) => {
+          group.items.forEach((item) => {
+            results.push(...markItem(item));
+          });
+        });
+      });
+      return results.sort((a, b) => a.no - b.no);
+    }
+
+    function submitTest(auto = false) {
+      if (state.submitted) return;
+
+      state.submitted = true;
+      clearInterval(state.timerId);
+      $("submitBtn").disabled = true;
+
+      const marks = allMarks();
+      const correct = marks.filter((m) => m.ok).length;
+      const total = marks.length;
+
+      const studentName = $("studentName").value ? ` – ${esc($("studentName").value)}` : "";
+      const rows = marks.map((m) =>
+        `<tr class="${m.ok ? "ok" : "bad"}">
+          <td>${m.no}</td>
+          <td>${esc(m.mine || "—")}</td>
+          <td>${esc(m.correct)}</td>
+          <td>${m.ok ? "✓" : "✗"}</td>
+        </tr>`
+      ).join("");
+
+      state.resultHTML = `
+        <div class="result">
+          <h3>Result${studentName}${auto ? " (time up)" : ""}</h3>
+          <p><strong>${correct} / ${total}</strong> correct (${total ? Math.round((correct / total) * 100) : 0}%)</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Q</th>
+                <th>Answer given</th>
+                <th>Correct answer</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+
+      renderAll();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function startSession(testData) {
+      clearInterval(state.timerId);
+
+      state.test = testData;
+      state.part = 0;
+      state.responses = {};
+      state.submitted = false;
+      state.resultHTML = "";
+      state.secondsLeft = testData.time * 60;
+
+      $("submitBtn").disabled = false;
+      $("testTitle").textContent = testData.title;
+      document.title = testData.title;
+      updateTimer();
+
+      state.timerId = setInterval(tick, 1000);
+      renderAll();
+    }
+
+    function handleAnswer(event) {
+      const input = event.target;
+      if (!input.dataset || !input.dataset.no || state.submitted) return;
+
+      const no = input.dataset.no;
+
+      if (input.type === "checkbox") {
+        const set = new Set(Array.isArray(state.responses[no]) ? state.responses[no] : []);
+        if (input.checked) {
+          set.add(input.value);
+        } else {
+          set.delete(input.value);
+        }
+        state.responses[no] = [...set];
+        return;
+      }
+
+      if (input.type === "radio" && !input.checked) return;
+      state.responses[no] = input.value;
+    }
+
+    function slugify(value) {
+      return (value || "ielts-test")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "ielts-test";
+    }
+
+    function downloadTest() {
+      const hidden = $("test-source");
+      hidden.textContent = escForStore(JSON.stringify(state.doc));
+
+      const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${slugify(state.doc.title)}.html`;
+      a.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function removeMatchOption(group, optionIndex) {
+      group.options.splice(optionIndex, 1);
+
+      group.items.forEach((item) => {
+        if (item.answer === letterForIndex(optionIndex)) {
+          item.answer = "";
+        } else if (item.answer && letterToIndex(item.answer) > optionIndex) {
+          item.answer = letterForIndex(letterToIndex(item.answer) - 1);
+        }
+      });
+    }
+
+    function removeMcqOption(item, optionIndex) {
+      item.options.splice(optionIndex, 1);
+      item.correct = (item.correct || [])
+        .filter((letter) => letter !== letterForIndex(optionIndex))
+        .map((letter) => {
+          const idx = letterToIndex(letter);
+          return idx > optionIndex ? letterForIndex(idx - 1) : letter;
+        });
+    }
+
+    function renderBuilder() {
+      const doc = state.doc;
+      const { test } = compileTest(doc);
+
+      let html = `
+        <div class="card">
+          <h3>Test details</h3>
+          <div class="grid-2">
+            <label>Test title
+              <input data-k="title" value="${esc(doc.title)}">
+            </label>
+            <label>Time (minutes)
+              <input type="number" min="1" data-k="time" value="${esc(doc.time)}">
+            </label>
+          </div>
+          <label class="check">
+            <input type="checkbox" data-k="labels" ${doc.labels !== false ? "checked" : ""}>
+            Show paragraph letters (A, B, C…)
+          </label>
+        </div>
+      `;
+
+      doc.parts.forEach((passage, pIndex) => {
+        const compiledPassage = test.parts[pIndex];
+        html += renderPassageCard(passage, pIndex, compiledPassage);
+      });
+
+      html += `<button class="btn secondary" type="button" data-act="add-passage">+ Add passage</button>`;
+      $("builderBody").innerHTML = html;
+    }
+
+    function renderPassageCard(passage, pIndex, compiledPassage) {
+      const labelText = state.doc.labels !== false ? "A, B, C..." : "";
+      let html = `
+        <div class="card">
+          <div class="card-head">
+            <strong>Passage ${pIndex + 1}</strong>
+            <button class="btn danger small" type="button" data-act="del-passage" data-p="${pIndex}">Remove passage</button>
+          </div>
+
+          <label>Passage title
+            <input data-k="ptitle" data-p="${pIndex}" value="${esc(passage.passageTitle)}">
+          </label>
+
+          <label>Instruction shown above the questions
+            <textarea rows="2" data-k="pinstr" data-p="${pIndex}">${esc(passage.instruction)}</textarea>
+          </label>
+
+          <h4>Paragraphs</h4>
+      `;
+
+      (passage.paragraphs || []).forEach((text, i) => {
+        html += `
+          <div class="row">
+            <span class="label">${labelText ? letterForIndex(i) : ""}</span>
+            <textarea rows="4" data-k="para" data-p="${pIndex}" data-i="${i}">${esc(text)}</textarea>
+            <button class="btn danger small" type="button" data-act="del-para" data-p="${pIndex}" data-i="${i}">✕</button>
+          </div>
+        `;
+      });
+
+      html += `
+          <button class="btn secondary small" type="button" data-act="add-para" data-p="${pIndex}">+ Add paragraph</button>
+          <h4>Questions</h4>
+      `;
+
+      (passage.groups || []).forEach((group, gIndex) => {
+        html += renderGroupCard(group, pIndex, gIndex, compiledPassage && compiledPassage.groups[gIndex]);
+      });
+
+      html += `
+          <button class="btn secondary small" type="button" data-act="add-group" data-p="${pIndex}">+ Add question group</button>
+        </div>
+      `;
+
+      return html;
+    }
+
+    function renderGroupCard(group, pIndex, gIndex, compiledGroup) {
+      const typeOptions = TYPE_LABELS.map(([value, label]) =>
+        `<option value="${value}" ${group.type === value ? "selected" : ""}>${label}</option>`
+      ).join("");
+
+      const rangeText = compiledGroup && compiledGroup.range
+        ? `<span class="nums">Numbers ${compiledGroup.range}</span>`
+        : `<span class="nums">No numbers yet</span>`;
+
+      let html = `
+        <div class="card group-card">
+          <div class="card-head">
+            <strong>Question group ${gIndex + 1}</strong>
+            ${rangeText}
+            <button class="btn danger small" type="button" data-act="del-group" data-p="${pIndex}" data-g="${gIndex}">Remove group</button>
+          </div>
+
+          <div class="grid-2">
+            <label>Question type
+              <select data-k="gtype" data-p="${pIndex}" data-g="${gIndex}">
+                ${typeOptions}
+              </select>
+            </label>
+
+            <label>Heading
+              <input data-k="ghead" data-p="${pIndex}" data-g="${gIndex}" value="${esc(group.heading)}">
+            </label>
+          </div>
+
+          <label>Instruction
+            <textarea rows="2" data-k="ginstr" data-p="${pIndex}" data-g="${gIndex}">${esc(group.instruction)}</textarea>
+          </label>
+      `;
+
+      if (group.type === "GAP") {
+        html += renderGapBuilder(group, pIndex, gIndex);
+      } else if (group.type === "MATCH") {
+        html += renderMatchBuilder(group, pIndex, gIndex);
+      } else {
+        html += renderItemBuilder(group, pIndex, gIndex);
+      }
+
+      html += `</div>`;
+      return html;
+    }
+
+    function renderGapBuilder(group, pIndex, gIndex) {
+      const attrs = `data-p="${pIndex}" data-g="${gIndex}"`;
+
+      let html = `
+        <label>Box title (optional)
+          <input data-k="gbox" ${attrs} value="${esc(group.box)}">
+        </label>
+        <h4>Lines in the box</h4>
+      `;
+
+      (group.lines || []).forEach((line, i) => {
+        html += `
+          <div class="row">
+            <select data-k="lkind" ${attrs} data-i="${i}">
+              <option value="h" ${line.kind === "h" ? "selected" : ""}>Sub-heading</option>
+              <option value="b" ${line.kind === "b" ? "selected" : ""}>Bullet</option>
+              <option value="t" ${line.kind === "t" ? "selected" : ""}>Plain line</option>
+            </select>
+            <input data-k="line" ${attrs} data-i="${i}" value="${esc(line.text)}" placeholder="Hives are on flat [rooftops]">
+            <button class="btn danger small" type="button" data-act="del-line" ${attrs} data-i="${i}">✕</button>
+          </div>
+        `;
+      });
+
+      html += `
+        <button class="btn secondary small" type="button" data-act="add-line" ${attrs}>+ Add line</button>
+        <p class="hint">Put each answer in square brackets, e.g. <em>Hives are on flat [rooftops]</em>. For alternatives use a slash: [rooftops/rooftop].</p>
+      `;
+      return html;
+    }
+
+    function renderMatchBuilder(group, pIndex, gIndex) {
+      const attrs = `data-p="${pIndex}" data-g="${gIndex}"`;
+
+      let html = `<h4>Options (headings or list items)</h4>`;
+
+      (group.options || []).forEach((option, i) => {
+        html += `
+          <div class="row">
+            <span class="label">${letterForIndex(i)}</span>
+            <input data-k="gopt" ${attrs} data-i="${i}" value="${esc(option)}">
+            <button class="btn danger small" type="button" data-act="del-gopt" ${attrs} data-i="${i}">✕</button>
+          </div>
+        `;
+      });
+
+      html += `
+        <button class="btn secondary small" type="button" data-act="add-gopt" ${attrs}>+ Add option</button>
+        <h4>Items to match</h4>
+      `;
+
+      (group.items || []).forEach((item, i) => {
+        const letters = (group.options || []).map((_, idx) => `<option value="${letterForIndex(idx)}" ${item.answer === letterForIndex(idx) ? "selected" : ""}>${letterForIndex(idx)}</option>`).join("");
+        html += `
+          <div class="row">
+            <input data-k="itext" ${attrs} data-i="${i}" value="${esc(item.text)}" placeholder="Paragraph A">
+            <select data-k="ians" ${attrs} data-i="${i}">
+              ${letters}
+            </select>
+            <button class="btn danger small" type="button" data-act="del-item" ${attrs} data-i="${i}">✕</button>
+          </div>
+        `;
+      });
+
+      html += `<button class="btn secondary small" type="button" data-act="add-item" ${attrs}>+ Add item</button>`;
+      return html;
+    }
+
+    function renderItemBuilder(group, pIndex, gIndex) {
+      const attrs = `data-p="${pIndex}" data-g="${gIndex}"`;
+      let html = "";
+
+      (group.items || []).forEach((item, i) => {
+        const itemAttrs = `${attrs} data-i="${i}"`;
+
+        if (group.type === "TFNG" || group.type === "YNNG") {
+          const options = TF_OPTIONS[group.type].map((option) =>
+            `<option value="${option}" ${item.answer === option ? "selected" : ""}>${option}</option>`
+          ).join("");
+
+          html += `
+            <div class="item">
+              <div class="row">
+                <input data-k="itext" ${itemAttrs} value="${esc(item.text)}" placeholder="Statement">
+                <select data-k="ians" ${itemAttrs}>
+                  ${options}
+                </select>
+                <button class="btn danger small" type="button" data-act="del-item" ${itemAttrs}>✕</button>
+              </div>
+            </div>
+          `;
+        } else if (group.type === "MCQ") {
+          html += `
+            <div class="item">
+              <div class="row">
+                <input data-k="itext" ${itemAttrs} value="${esc(item.text)}" placeholder="Question">
+                <button class="btn danger small" type="button" data-act="del-item" ${itemAttrs}>✕</button>
+              </div>
+          `;
+
+          (item.options || []).forEach((option, x) => {
+            html += `
+              <div class="row item-indent">
+                <span class="label">${letterForIndex(x)}</span>
+                <input data-k="opt" ${itemAttrs} data-x="${x}" value="${esc(option)}" placeholder="Option">
+                <label class="check">
+                  <input type="checkbox" data-k="mchk" ${itemAttrs} data-x="${x}" value="${letterForIndex(x)}" ${item.correct.includes(letterForIndex(x)) ? "checked" : ""}>
+                  Correct
+                </label>
+                <button class="btn danger small" type="button" data-act="del-opt" ${itemAttrs} data-x="${x}">✕</button>
+              </div>
+            `;
+          });
+
+          html += `
+              <button class="btn secondary small" type="button" data-act="add-opt" ${itemAttrs}>+ Add option</button>
+              <p class="hint">Tick the correct answer. Ticking two creates a “choose TWO” question.</p>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="item">
+              <div class="row">
+                <input data-k="itext" ${itemAttrs} value="${esc(item.text)}" placeholder="Question">
+                <button class="btn danger small" type="button" data-act="del-item" ${itemAttrs}>✕</button>
+              </div>
+              <div class="row">
+                <input data-k="ialts" ${itemAttrs} value="${esc(item.alts)}" placeholder="Accepted answers, separated by commas">
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      html += `<button class="btn secondary small" type="button" data-act="add-item" ${attrs}>+ Add item</button>`;
+      return html;
+    }
+
+    function applyBuilder() {
+      const { test, errors } = compileTest(state.doc);
+
+      if (errors.length) {
+        $("builderErrors").innerHTML = errors.map((msg) => `<div>${esc(msg)}</div>`).join("");
+        return;
+      }
+
+      startSession(test);
+      $("builder").classList.add("hidden");
+      saveDoc();
+    }
+
+    function handleBuilderClick(event) {
+      const button = event.target.closest("[data-act]");
+      if (!button) return;
+
+      const act = button.dataset.act;
+      const doc = state.doc;
+      const pIndex = Number(button.dataset.p || 0);
+      const gIndex = Number(button.dataset.g ?? -1);
+      const iIndex = Number(button.dataset.i ?? -1);
+      const xIndex = Number(button.dataset.x ?? -1);
+
+      const getGroup = () => doc.parts[pIndex].groups[gIndex];
+      const getItem = () => getGroup().items[iIndex];
+
+      switch (act) {
+        case "apply":
+          applyBuilder();
+          return;
+
+        case "close":
+          $("builder").classList.add("hidden");
+          return;
+
+        case "example":
+          state.doc = clone(EXAMPLE_DOC);
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "add-passage":
+          doc.parts.push(newPassage());
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "del-passage":
+          doc.parts.splice(pIndex, 1);
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "add-para":
+          doc.parts[pIndex].paragraphs.push("");
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "del-para":
+          doc.parts[pIndex].paragraphs.splice(iIndex, 1);
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "add-group":
+          doc.parts[pIndex].groups.push(newGroup("GAP"));
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "del-group":
+          doc.parts[pIndex].groups.splice(gIndex, 1);
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "add-line":
+          getGroup().lines.push({ kind: "b", text: "" });
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "del-line":
+          getGroup().lines.splice(iIndex, 1);
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "add-gopt":
+          getGroup().options.push("");
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "del-gopt":
+          removeMatchOption(getGroup(), iIndex);
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "add-item":
+          getGroup().items.push(createItem(getGroup().type));
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "del-item":
+          getGroup().items.splice(iIndex, 1);
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "add-opt":
+          getItem().options.push("");
+          renderBuilder();
+          saveDoc();
+          return;
+
+        case "del-opt":
+          removeMcqOption(getItem(), xIndex);
+          renderBuilder();
+          saveDoc();
+          return;
+
+        default:
+          return;
+      }
+    }
+
+    function handleBuilderInput(event) {
+      const target = event.target;
+      const key = target.dataset.k;
+      if (!key) return;
+
+      const doc = state.doc;
+      const pIndex = Number(target.dataset.p ?? -1);
+      const gIndex = Number(target.dataset.g ?? -1);
+      const iIndex = Number(target.dataset.i ?? -1);
+      const xIndex = Number(target.dataset.x ?? -1);
+
+      if (event.type === "input" && (target.tagName === "SELECT" || target.type === "checkbox")) {
+        return;
+      }
+
+      const getGroup = () => doc.parts[pIndex].groups[gIndex];
+      const getItem = () => getGroup().items[iIndex];
+
+      switch (key) {
+        case "title":
+          doc.title = target.value;
+          break;
+
+        case "time":
+          doc.time = Math.max(1, Number(target.value) || 60);
+          break;
+
+        case "labels":
+          doc.labels = target.checked;
+          renderBuilder();
+          break;
+
+        case "ptitle":
+          doc.parts[pIndex].passageTitle = target.value;
+          break;
+
+        case "pinstr":
+          doc.parts[pIndex].instruction = target.value;
+          break;
+
+        case "para":
+          doc.parts[pIndex].paragraphs[iIndex] = target.value;
+          break;
+
+        case "gtype":
+          getGroup().type = target.value;
+          renderBuilder();
+          break;
+
+        case "ghead":
+          getGroup().heading = target.value;
+          break;
+
+        case "ginstr":
+          getGroup().instruction = target.value;
+          break;
+
+        case "gbox":
+          getGroup().box = target.value;
+          break;
+
+        case "lkind":
+          getGroup().lines[iIndex].kind = target.value;
+          break;
+
+        case "line":
+          getGroup().lines[iIndex].text = target.value;
+          break;
+
+        case "gopt":
+          getGroup().options[iIndex] = target.value;
+          break;
+
+        case "itext":
+          getItem().text = target.value;
+          break;
+
+        case "ians":
+          getItem().answer = target.value;
+          break;
+
+        case "ialts":
+          getItem().alts = target.value;
+          break;
+
+        case "opt":
+          getItem().options[xIndex] = target.value;
+          break;
+
+        case "mchk": {
+          const item = getItem();
+          const set = new Set(item.correct || []);
+          if (target.checked) {
+            set.add(target.value);
+          } else {
+            set.delete(target.value);
+          }
+          item.correct = [...set].sort();
+          renderBuilder();
+          break;
+        }
+      }
+
+      saveDoc();
+    }
+
+    function initApp() {
+      $("partTabs").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-part]");
+        if (!button) return;
+        state.part = Number(button.dataset.part);
+        renderAll();
+      });
+
+      $("questions").addEventListener("input", handleAnswer);
+      $("questions").addEventListener("change", handleAnswer);
+
+      $("submitBtn").addEventListener("click", () => {
+        if (confirm("Submit the test now?")) {
+          submitTest(false);
+        }
+      });
+
+      $("downloadBtn").addEventListener("click", downloadTest);
+
+      $("editBtn").addEventListener("click", () => {
+        $("builderErrors").innerHTML = "";
+        $("builder").classList.remove("hidden");
+        renderBuilder();
+      });
+
+      $("builder").addEventListener("click", handleBuilderClick);
+      $("builder").addEventListener("input", handleBuilderInput);
+      $("builder").addEventListener("change", handleBuilderInput);
+
+      const stored = getStoredDoc();
+      state.doc = stored && Array.isArray(stored.parts) ? stored : clone(EXAMPLE_DOC);
+
+      const { test, errors } = compileTest(state.doc);
+      if (errors.length) {
+        state.doc = clone(EXAMPLE_DOC);
+      }
+
+      startSession(compileTest(state.doc).test);
+    }
+
+    initApp();
+  </script>
+
+
+</body></html>
