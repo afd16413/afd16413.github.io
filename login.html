@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b32">
+  <title>Student Login | IELTS Academic Reading</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root { color-scheme: light; --navy:#101b32; --navy2:#1b2b49; --gold:#d5ad57; --ink:#172033; --muted:#697386; --line:#dce1e9; --paper:#fff; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; padding:24px; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink); background:linear-gradient(135deg,#edf0f5,#f8f6f0); }
+    .shell { width:min(100%,960px); min-height:560px; display:grid; grid-template-columns:1fr 1fr; overflow:hidden; border-radius:22px; background:var(--paper); box-shadow:0 24px 70px #101b3220; }
+    .intro { padding:52px 44px; display:flex; flex-direction:column; justify-content:space-between; color:white; background:linear-gradient(150deg,var(--navy),var(--navy2)); position:relative; }
+    .intro:after { content:""; position:absolute; width:260px; height:260px; right:-100px; bottom:-100px; border:1px solid #d5ad574d; border-radius:50%; box-shadow:0 0 0 30px #d5ad5708,0 0 0 60px #d5ad5708; }
+    .brand { color:var(--gold); font-weight:800; letter-spacing:.14em; font-size:.78rem; text-transform:uppercase; }
+    .intro h1 { font-family:Georgia,"Times New Roman",serif; font-size:clamp(2.2rem,4vw,3.35rem); line-height:1.08; font-weight:500; margin:34px 0 18px; }
+    .intro p { max-width:330px; color:#d5dbea; line-height:1.7; }
+    .tag { margin-top:28px; display:inline-flex; align-items:center; gap:9px; font-size:.88rem; color:#f3dfad; }
+    .tag:before { content:""; width:7px; height:7px; border-radius:50%; background:var(--gold); }
+    .foot { color:#aeb9cd; font-size:.8rem; }
+    .form-panel { padding:52px 46px; display:flex; flex-direction:column; justify-content:center; }
+    .form-panel h2 { margin:0 0 8px; font-size:1.8rem; letter-spacing:-.03em; }
+    .sub { margin:0 0 30px; color:var(--muted); line-height:1.55; }
+    label { display:block; margin:17px 0 8px; font-size:.9rem; font-weight:650; }
+    input { width:100%; padding:14px 15px; border:1px solid var(--line); border-radius:10px; font:inherit; outline:none; background:#fff; }
+    input:focus { border-color:var(--gold); box-shadow:0 0 0 3px #d5ad5729; }
+    button { width:100%; margin-top:24px; padding:14px 16px; border:0; border-radius:10px; background:var(--navy); color:white; font:inherit; font-weight:750; cursor:pointer; transition:transform .15s,background .15s; }
+    button:hover { background:var(--navy2); transform:translateY(-1px); }
+    button:disabled { opacity:.6; cursor:wait; transform:none; }
+    .message { min-height:24px; margin-top:14px; font-size:.9rem; line-height:1.5; color:#a12a2a; }
+    .help { margin-top:16px; font-size:.84rem; color:var(--muted); line-height:1.6; }
+    .help button { width:auto; padding:0; margin:0; border:0; background:none; color:#71551b; text-decoration:underline; font:inherit; font-weight:650; }
+    @media(max-width:700px) { body{padding:14px;} .shell{grid-template-columns:1fr;min-height:0;} .intro{padding:30px 28px;} .intro h1{margin-top:22px;font-size:2.25rem;} .intro p{margin-bottom:4px;} .foot{margin-top:24px;} .form-panel{padding:34px 28px 38px;} }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="intro" aria-label="IELTS Academic Reading">
+      <div>
+        <div class="brand">IELTS Academic Reading</div>
+        <h1>Practice with purpose.</h1>
+        <p>Sign in to access your reading assessments, submit your answers, and review your results.</p>
+        <div class="tag">Student assessment portal</div>
+      </div>
+      <div class="foot">Use the email address and password provided for your student account.</div>
+    </section>
+    <section class="form-panel">
+      <h2>Student login</h2>
+      <p class="sub">Enter your account details to continue to your tests.</p>
+      <form id="login-form">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="username" placeholder="student@example.com" required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+        <button id="login-button" type="submit">Sign in</button>
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+      </form>
+      <div class="help"><button type="button" id="reset-button">Forgot your password?</button><br>Don't have an account? Ask your teacher to create or invite your student account.</div>
+    </section>
+  </main>
+<script>
+  // Replace these two values with your Supabase project's URL and publishable key.
+  const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'YOUR_SUPABASE_PUBLISHABLE_KEY';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+  const form = document.getElementById('login-form');
+  const button = document.getElementById('login-button');
+  const message = document.getElementById('message');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    message.textContent = '';
+    button.disabled = true;
+    button.textContent = 'Signing in…';
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      if (!data.session) throw new Error('Sign-in did not create a session. Please try again.');
+      window.location.assign('./tests.html');
+    } catch (error) {
+      message.textContent = error.message === 'Invalid login credentials'
+        ? 'The email address or password is incorrect.'
+        : (error.message || 'Unable to sign in. Please try again.');
+      button.disabled = false;
+      button.textContent = 'Sign in';
+    }
+  });
+
+  document.getElementById('reset-button').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    if (!email) {
+      message.style.color = '#697386';
+      message.textContent = 'Enter your email address above first, then choose “Forgot your password?”.';
+      return;
+    }
+    message.style.color = '#697386';
+    message.textContent = 'Sending password-reset email…';
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname.replace(/[^/]*$/, 'reset-password.html')
+    });
+    if (error) {
+      message.style.color = '#a12a2a';
+      message.textContent = error.message;
+    } else {
+      message.textContent = 'If an account exists for this email, a password-reset link will be sent.';
+    }
+  });
+</script>
+</body>
+</html>
