@@ -1555,20 +1555,30 @@ Write your answers in boxes 1–5 on your answer sheet.</textarea>
         .replace(/^-+|-+$/g, "") || "ielts-test";
     }
 
-    function downloadTest() {
-      const hidden = $("test-source");
-      hidden.textContent = escForStore(JSON.stringify(state.doc));
+function downloadTest() {
+  const { test, errors } = compileTest(state.doc);
+  if (errors.length) {
+    alert("Fix these first:\n\n" + errors.join("\n"));
+    return;
+  }
 
-      const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
+  const file = slugify(test.title) + ".json";
+  const blob = new Blob([JSON.stringify(test)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = file;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${slugify(state.doc.title)}.html`;
-      a.click();
+  const questions = test.parts.reduce((n, p) =>
+    n + p.groups.reduce((m, g) => m + g.items.reduce((k, i) => k + i.nos.length, 0), 0), 0);
 
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+  prompt(
+    "Save the downloaded file into tests/ and add this object to the list in tests/manifest.json:",
+    JSON.stringify({ file, title: test.title, time: test.time, parts: test.parts.length, questions })
+  );
+}
     }
 
     function removeMatchOption(group, optionIndex) {
